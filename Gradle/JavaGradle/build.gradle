@@ -51,6 +51,30 @@ task runFraction(type: JavaExec) {
   main = 'Fraction'
 }
 
+// task which will run Fraction Main with default parameters,
+// but also accepts new parameter this time with given names
+// Example: gradle runFraction -Pnum=3 -Pdenom=4
+// Example2 (this will make Gradle run more quietly in the console):
+//   gradle runFraction -Pnum=3 -Pdenom=4 -q --console=plain
+task runFrac(type: JavaExec) {
+  group 'Fraction Tasks'
+  description 'Tasks which runs Fraction with or without arguments'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'Fraction'
+  if (project.hasProperty("num") && project.hasProperty("denom")) {
+    args(project.getProperty('num'), project.getProperty('denom'));
+  } else if (project.hasProperty("num")){
+    args(project.getProperty('num'), 3);
+  } else if (project.hasProperty('denom')){
+    args(1, project.getProperty('denom'))
+  }
+    else {
+    args(1,3)
+  }
+}
+
 // Try:
 // 1. Change Fraction.main so it accepts 2 arguments
 // 2. Create a new gradle tasks that accepts two arguments and 
