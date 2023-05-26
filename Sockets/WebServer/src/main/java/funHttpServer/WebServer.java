@@ -6,7 +6,7 @@ You can also do some other simple GET requests:
 2) json shows you the response as JSON for /random instead the html page
 3) /file/filename shows you the raw file (not as HTML)
 4) /multiply?num1=3&num2=4 multiplies the two inputs and responses with the result
-5) /github?query=users/amehlhase316/repos (or other GitHub repo owners) will lead to receiving
+5) /tgihub?query=users/amehlhase316/repos (or other GitHub repo owners) will lead to receiving
    JSON which will for now only be printed in the console. See the todo below
 
 The reading of the request is done "manually", meaning no library that helps making things a 
@@ -25,6 +25,10 @@ import java.util.Random;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.nio.charset.Charset;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 
 class WebServer {
   public static void main(String args[]) {
@@ -239,18 +243,93 @@ class WebServer {
           //     then drill down to what you care about
           // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
           //     "/repos/OWNERNAME/REPONAME/contributors"
-
+          try{
           Map<String, String> query_pairs = new LinkedHashMap<String, String>();
           query_pairs = splitQuery(request.replace("github?", ""));
           String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-          System.out.println(json);
 
+         // System.out.println(json);
+          if(json == null) {
+            throw new NullPointerException("can't not resolve json");
+          }
+          JSONObject jsonObject;
+          String str = "";
+          JSONArray jsonArray = new JSONArray(json);
+          for(int i = 0; i < jsonArray.length(); i++){
+            jsonObject = jsonArray.getJSONObject(i);
+            str += "[id: " +jsonObject.get("id") + ", " ;
+            str += "name: "+jsonObject.get("name") +", ";
+            str += "login: " +jsonObject.getJSONObject("owner").get("login")+ "] ";
+
+          }
           builder.append("HTTP/1.1 200 OK\n");
           builder.append("Content-Type: text/html; charset=utf-8\n");
           builder.append("\n");
-          builder.append("Check the todos mentioned in the Java source file");
+          builder.append(str);
+          } catch(NumberFormatException e) {
+
+          }
           // TODO: Parse the JSON returned by your fetch and create an appropriate
           // response based on what the assignment document asks for
+
+        } else if (request.contains("compare?")) {
+          Map<String, String> query_pairs = new LinkedHashMap<>();
+          try {
+            query_pairs = splitQuery(request.replace("compare?", ""));
+            Integer num1 = Integer.parseInt(query_pairs.get("num1"));
+            Integer num2 = Integer.parseInt(query_pairs.get("num2"));
+
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            if (num1 > num2) {
+              builder.append(num1 + " is a larger number than " + num2);
+            } else if (num1 < num2) {
+              builder.append(num1 + " is a smaller number than " + num2);
+            } else {
+              builder.append(num1 + " is equal to " + num2);
+            }
+          }catch(NumberFormatException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid input string");
+          } catch(StringIndexOutOfBoundsException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("You are missing something");
+          }
+
+        } else if(request.contains("guess?")) {
+          Map<String,String> query_pairs = new LinkedHashMap<>();
+          try {
+          query_pairs = splitQuery(request.replace("guess?",""));
+            Integer num = Integer.parseInt(query_pairs.get("num"));
+            Integer max = Integer.parseInt(query_pairs.get("max"));
+
+            Integer answer = random.nextInt(max);
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Your guess is " +num+ ". Our number is "+answer+ ". ");
+            if(num.equals(answer)){
+              builder.append("Congratulation!");
+            } else{
+              builder.append("Good luck next time.");
+            }
+
+          } catch(NumberFormatException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid input string");
+          } catch(StringIndexOutOfBoundsException e ) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("You are missing something");
+          }
 
         } else {
           // if the request is not recognized at all
