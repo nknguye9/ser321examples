@@ -312,7 +312,7 @@ class WebServer {
             Integer num = Integer.parseInt(query_pairs.get("num"));
             Integer max = Integer.parseInt(query_pairs.get("max"));
 
-            Integer answer = random.nextInt(max);
+            Integer answer = random.nextInt(max)+1;
             builder.append("HTTP/1.1 200 OK\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
