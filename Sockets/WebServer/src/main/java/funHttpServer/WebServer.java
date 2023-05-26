@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.nio.charset.Charset;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -243,32 +244,35 @@ class WebServer {
           //     then drill down to what you care about
           // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
           //     "/repos/OWNERNAME/REPONAME/contributors"
-          try{
+
           Map<String, String> query_pairs = new LinkedHashMap<String, String>();
           query_pairs = splitQuery(request.replace("github?", ""));
-          String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
+
+            String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
 
          // System.out.println(json);
-          if(json == null) {
-            throw new NullPointerException("can't not resolve json");
-          }
-          JSONObject jsonObject;
-          String str = "";
-          JSONArray jsonArray = new JSONArray(json);
-          for(int i = 0; i < jsonArray.length(); i++){
-            jsonObject = jsonArray.getJSONObject(i);
-            str += "[id: " +jsonObject.get("id") + ", " ;
-            str += "name: "+jsonObject.get("name") +", ";
-            str += "login: " +jsonObject.getJSONObject("owner").get("login")+ "] ";
 
-          }
-          builder.append("HTTP/1.1 200 OK\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append(str);
-          } catch(NumberFormatException e) {
+            try {
+              JSONObject jsonObject;
+              String str = "";
+              JSONArray jsonArray = new JSONArray(json);
+              for (int i = 0; i < jsonArray.length(); i++) {
+                jsonObject = jsonArray.getJSONObject(i);
+                str += "[id: " + jsonObject.get("id") + ", ";
+                str += "name: " + jsonObject.get("name") + ", ";
+                str += "login: " + jsonObject.getJSONObject("owner").get("login") + "] ";
+              }
+              builder.append("HTTP/1.1 200 OK\n");
+              builder.append("Content-Type: text/html; charset=utf-8\n");
+              builder.append("\n");
+              builder.append(str);
+            } catch (org.json.JSONException e) {
+              builder.append("HTTP/1.1 400 Bad Request\n");
+              builder.append("Content-Type: text/html; charset=utf-8\n");
+              builder.append("\n");
+              builder.append("Invalid input string");
+            }
 
-          }
           // TODO: Parse the JSON returned by your fetch and create an appropriate
           // response based on what the assignment document asks for
 
