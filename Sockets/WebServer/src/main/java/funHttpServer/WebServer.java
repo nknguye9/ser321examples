@@ -319,7 +319,7 @@ class WebServer {
               builder.append("'max' must be greater than 0");
               throw new IllegalArgumentException("'max' must be greater than 0");
             }
-            if(num > max || num < 0){
+            if(num > max || num < 1){
               builder.append("HTTP/1.1 400 Bad Request\n");
               builder.append("Content-Type: text/html; charset=utf-8\n");
               builder.append("\n");
