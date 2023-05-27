@@ -323,8 +323,8 @@ class WebServer {
               builder.append("HTTP/1.1 400 Bad Request\n");
               builder.append("Content-Type: text/html; charset=utf-8\n");
               builder.append("\n");
-              builder.append("num has to be in the range of 0 and " + max);
-              throw new Exception("'num' has to be in the range of 0 and " + max);
+              builder.append("num must be in the range between 0 and " + max);
+              throw new Exception("'num' must be in the range between 0 and " + max);
             }
             Integer answer = random.nextInt(max)+1;
             builder.append("HTTP/1.1 200 OK\n");
