@@ -312,6 +312,20 @@ class WebServer {
             Integer num = Integer.parseInt(query_pairs.get("num"));
             Integer max = Integer.parseInt(query_pairs.get("max"));
 
+            if(max <= 0){
+              builder.append("HTTP/1.1 400 Bad Request\n");
+              builder.append("Content-Type: text/html; charset=utf-8\n");
+              builder.append("\n");
+              builder.append("'max' must be greater than 0");
+              throw new IllegalArgumentException("'max' must be greater than 0");
+            }
+            if(num > max || num < 0){
+              builder.append("HTTP/1.1 400 Bad Request\n");
+              builder.append("Content-Type: text/html; charset=utf-8\n");
+              builder.append("\n");
+              builder.append("num has to be in the range of 0 and " + max);
+              throw new Exception("'num' has to be in the range of 0 and " + max);
+            }
             Integer answer = random.nextInt(max)+1;
             builder.append("HTTP/1.1 200 OK\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
@@ -333,6 +347,10 @@ class WebServer {
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("You are missing something");
+          } catch(IllegalArgumentException e) {
+
+          } catch (Exception e) {
+
           }
 
         } else {
