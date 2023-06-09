@@ -16,7 +16,6 @@ public class SockServer {
   static ObjectInputStream in;
 
   static int port = 8888;
-  JSONArray arrayName = new JSONArray();
 
 
   public static void main (String args[]) {
