@@ -33,6 +33,7 @@ public class SockServer {
       System.exit(2);
     }
 
+    JSONObject res;
     try {
       //open socket
       ServerSocket serv = new ServerSocket(8888); // create server socket on port 8888
@@ -43,7 +44,7 @@ public class SockServer {
        *
        */
 
-      while (true){
+      while (true) {
         System.out.println("Server waiting for a connection");
         sock = serv.accept(); // blocking wait
 
@@ -57,9 +58,11 @@ public class SockServer {
         os = new DataOutputStream(out);
 
         String s = (String) in.readObject();
+
         JSONObject req = new JSONObject(s);
 
-        JSONObject res = testField(req, "type");
+
+        res = testField(req, "type");
         if (!res.getBoolean("ok")) {
           overandout(res);
           continue;
@@ -73,16 +76,18 @@ public class SockServer {
           res = add(req);
         } else if (req.getString("type").equals("addmany")) {
           res = addmany(req);
-        } else if (req.getString("type").equals("concat")){
+        } else if (req.getString("type").equals("concat")) {
           res = concatenate(req);
-        } else if (req.getString("type").equals("names")){
+        } else if (req.getString("type").equals("names")) {
           res = names(req);
         } else {
           res = wrongType(req);
         }
         overandout(res);
       }
-    } catch(Exception e) {e.printStackTrace();}
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -206,7 +211,7 @@ public class SockServer {
         res.put("message", "list empty" );
       } else {
         res.put("allNames", arrayName);
-        res.put("message", "no name is provided");
+        res.put("message", "no name was provided");
       }
     } // check if name already exists in server
     else if (nameExists(name, arrayName)) {
